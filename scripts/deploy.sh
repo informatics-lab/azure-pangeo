@@ -26,7 +26,7 @@ helm repo add pangeo https://pangeo-data.github.io/helm-chart/
 helm repo update
 
 # Get deps
-helm dependency update jadepangeo
+helm dependency update azure-pangeo
 
 # Apply changes
 helm upgrade --install $RELEASE_NAME azure-pangeo --namespace $NAMESPACE -f env/$ENV/values.yaml -f env/$ENV/secrets.yaml
