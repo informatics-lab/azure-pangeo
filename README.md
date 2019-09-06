@@ -115,7 +115,7 @@ AZ_TENENT
 AZ_USERNAME
 ```
 
-The service principal can be created like so. This will show the necessary values of the env vars above:
+The service principal can be created like so. This will show the necessary values of the env vars above (note - username is the appId):
 
 ```shell
 az ad sp create-for-rbac --name http://pangeo-travis-deploy

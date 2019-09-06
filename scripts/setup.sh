@@ -49,11 +49,5 @@ done
 
 # # Setup kubectl config
 az login --service-principal --username ${AZ_USERNAME} --password ${AZ_PASSWORD} --tenant ${AZ_TENENT}
-az aks get-credentials -g "$ENV" -n "$ENV" --overwrite-existing
 
-# helm client version may differ from server version. Find out the server version and install that if different.
-echo "*** Downgrade helm if client version doesn't match server ***"
-HVERSION=$(helm version -s --short | cut -d ' '  -f 2 | cut -d '+' -f 1)
-sudo ./helm-install.sh --version $HVERSION
 
-echo "*** Set up complete ***"
