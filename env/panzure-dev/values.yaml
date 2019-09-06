@@ -1,0 +1,17 @@
+
+redirect:
+  enabled: false
+
+pangeo:
+  jupyterhub:
+    ingress:
+      hosts:
+      - panzure-dev.informaticslab.co.uk
+      tls:
+        - hosts:
+          - panzure-dev.informaticslab.co.uk
+          secretName: kubelego-tls-proxy-panzure-dev.informaticslab.co.uk
+
+    auth:
+      github:
+        callbackUrl: "https://panzure-dev.informaticslab.co.uk/hub/oauth_callback"

@@ -1,0 +1,30 @@
+{{- if .Values.redirect.enabled -}}
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: redirect
+  labels:
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: redirect
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: redirect
+        component: redirect
+        release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
+    spec:
+      containers:
+        - name: redirect
+          resources:
+            requests:
+              cpu: 0.15
+          image: schmunk42/nginx-redirect
+          env:
+            - name: SERVER_REDIRECT
+              value: {{ .Values.redirect.to }}
+{{- end -}}

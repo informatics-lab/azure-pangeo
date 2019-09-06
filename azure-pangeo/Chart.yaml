@@ -1,0 +1,10 @@
+apiVersion: v1
+name: azure-pangeo
+version: 0.1.0
+description: An extension of pangeo for our own use on azure
+icon: https://raw.githubusercontent.com/pangeo-data/branding/master/logo/pangeo_card_green.svg
+maintainers:
+  - name: Peter Killick
+    email: peter.killick@informaticslab.co.uk
+  - name: Theo McCaie
+    email: theo.mccaie@informaticslab.co.uk

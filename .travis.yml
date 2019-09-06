@@ -1,0 +1,25 @@
+sudo: required
+language: python
+
+python:
+  - '3.6'
+
+install:
+  - "$TRAVIS_BUILD_DIR/scripts/setup.sh"
+
+script:
+  - bash $TRAVIS_BUILD_DIR/scripts/test-chart.sh
+
+deploy:
+
+- provider: script
+  skip_cleanup: true
+  script: bash $TRAVIS_BUILD_DIR/scripts/deploy.sh panzure-dev panzure-dev.informaticslab.co.uk panzure-dev
+  on:
+    branch: master
+
+- provider: script
+  skip_cleanup: true
+  script: bash $TRAVIS_BUILD_DIR/scripts/deploy.sh panzure panzure.informaticslab.co.uk panzure
+  on:
+    tags: true

@@ -1,0 +1,135 @@
+telegraf:
+  enabled: false
+
+redirect:
+  enabled: false
+
+
+pangeo:
+  jupyterhub:
+
+    ingress:
+      enabled: true
+      annotations:
+        kubernetes.io/tls-acme: "true"
+        kubernetes.io/ingress.class: "nginx"
+
+    proxy:
+      secretToken: OVERRIDEME
+      service:
+        type: ClusterIP
+
+    hub:
+
+      extraConfig:
+        customPodHook: |
+          c.JupyterHub.template_paths = ['/usr/local/share/jupyterhub/custom_templates/',
+                                        '/usr/local/share/jupyterhub/templates/']
+
+          c.KubeSpawner.profile_list = [
+            {
+              'display_name': 'Informatics Lab - Pangeo Notebook v0.8.1',
+              'kubespawner_override': {'singleuser_image_spec': 'informaticslab/pangeo-notebook:0.8.1'},
+              'default': True
+            }
+            ]
+
+      cookieSecret: OVERRIDEME
+
+      extraVolumes:
+        - name: custom-templates
+          gitRepo:
+            repository: "https://github.com/met-office-lab/jade-custom-jupyterhub-templates.git"
+            revision: "57685a67bd59af87dc9f2cfc792c923f2a8d178d"
+      extraVolumeMounts:
+        - mountPath: /usr/local/share/jupyterhub/custom_templates
+          name: custom-templates
+          subPath: "jade-custom-jupyterhub-templates/templates"
+        - mountPath: /usr/local/share/jupyterhub/static/custom
+          name: custom-templates
+          subPath: "jade-custom-jupyterhub-templates/assets"
+
+    singleuser:
+      image:
+        name: informaticslab/pangeo-notebook
+        tag: 0.8.1
+      imagePullSecret:
+        enabled: OVERRIDEME
+        registry: OVERRIDEME
+        username: OVERRIDEME
+        email: OVERRIDEME
+        password: OVERRIDEME
+      cmd: jupyter-labhub
+      defaultUrl: "/lab"
+      cpu:
+        limit: 2
+        guarantee: 1
+      memory:
+        limit: 16G
+        guarantee: 2G
+      extraEnv:
+        INTAKE_PATH: "/s3/informatics-pangeo-data/catalogs/weather:/s3/informatics-pangeo-data/catalogs/climate"
+        EXAMPLES_GIT_URL: https://github.com/informatics-lab/example-notebooks.git
+        DASK_KUBERNETES__DIAGNOSTICS_LINK: "{JUPYTERHUB_SERVICE_PREFIX}proxy/{port}/status"
+        DASK_KUBERNETES__WORKER_TEMPLATE_PATH: "/etc/daskernetes/worker-template.yaml"
+        DASK_KUBERNETES__WORKER_NAME: "dask-{JUPYTERHUB_USER}-{uuid}"
+        # Workaround for https://github.com/ContinuumIO/anaconda-issues/issues/6698
+        _PYTHON_SYSCONFIGDATA_NAME: "_sysconfigdata_m_linux_x86_64-linux-gnu"
+        KRONTAB_OWNER: "$JUPYTERHUB_USER"
+      storage:
+        dynamic:
+          StorageClass: azurefile
+        extraVolumes:
+
+        # - name: scratch
+        #   flexVolume:
+        #     driver: "informaticslab/goofys-flex-volume"
+        #     options:
+        #       bucket: "informatics-pangeo-scratch"
+        #       dirMode: "0777"
+        #       fileMode: "0777"
+        - name: daskernetes-config
+          configMap:
+            name: daskernetes-config
+        - name: krontab-config
+          configMap:
+            name: krontab-config
+        extraVolumeMounts:
+
+        # - name: scratch
+        #   mountPath: /scratch
+        - name: daskernetes-config
+          mountPath: /etc/daskernetes
+          readOnly: true
+        - name: krontab-config
+          mountPath: /etc/xdg/krontab/krontab/templates
+
+    auth:
+      admin:
+        access: true
+        users:
+          - DPeterK
+          - niallrobinson
+          - tam203
+
+      type: github
+      github:
+        clientId: OVERRIDEME
+        clientSecret: OVERRIDEME
+        callbackUrl: OVERRIDEME
+        org_whitelist:
+          - "pangeo-met-office"
+        scopes:
+          - "read:org"
+      scopes:
+        - "read:org"
+
+    prePuller:
+      hook:
+        enabled: false
+      continuous:
+        enabled: true
+
+    cull:
+      enabled: true
+      timeout: 3600
