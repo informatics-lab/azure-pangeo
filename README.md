@@ -26,7 +26,7 @@ helm repo add pangeo https://pangeo-data.github.io/helm-chart/
 helm repo update
 
 # Get deps
-helm dependency update jadepangeo
+helm dependency update azure-pangeo
 
 # Install
 # prod
@@ -108,12 +108,19 @@ The auto deployment requires these environment variables to be set.
 ```shell
 SECRETS_REPO # Git url of the private config repo.
 SSH_KEY # Base 64 encode version of the private side of the github deploy key
-CERTIFICATE_AUTHORITY_DATA 
-CLUSTER_URL
-CLIENT_CERTIFICATE_DATA
-CLIENT_KEY_DATA
-PASSWORD
-USERNAME
+
+# The azure service principal details.
+AZ_PASSWORD
+AZ_TENENT 
+AZ_USERNAME
+```
+
+The service principal can be created like so. This will show the necessary values of the env vars above:
+
+```shell
+az ad sp create-for-rbac --name http://pangeo-travis-deploy
+
+az role assignment create --role "Azure Kubernetes Service Cluster Admin Role" --assignee http://pangeo-travis-deploy
 ```
 
 `SSH_KEY` is the private key to match the deploy key for the repo. Should be in base64 format.
@@ -125,66 +132,3 @@ SSH_KEY=$(cat key |base64)
 ```
 
 `$SSH_KEY` is the env var `key.pub` is the public deploy key for github.
-
-
-If you are already set up with `kubectl` most of the rest of the vars can be found in your `~/.kube/conf`, `k8-config.yaml` is a tempted version of this file.
-
-
-
-
-
-```
-
-#!/usr/bin/env bash
-
-set -ex
-
-#####
-# Update an existing autoscaling Azure Kubernetes Service resource to add the Informatics Lab pangeo.
-#####
-
-# Get kubernetes credentials for AKS resource.
-az aks get-credentials -g $RESOURE_GROUP_NAME -n $CLUSTER_NAME --overwrite-existing
-
-# Add upstream pangeo repo and update
-helm repo add pangeo https://pangeo-data.github.io/helm-chart/
-helm repo update
-
-# Install pangeo.
-pushd $PANGEO_CONFIG_PATH
-
-# Get dependencies
-helm dependency update jadepangeo
-# Install pangeo
-helm upgrade --install --namespace=$ENV $ENV.informaticslab.co.uk jadepangeo \
-  -f env/$ENV/values.yaml \
-  -f env/$ENV/secrets.yaml \
-  -f env/$ENV/secrets-azure.yaml
-
-popd
-
-# If we wanted to install the upstream pangeo.
-# helm upgrade --install --namespace pangeo pangeo pangeo/pangeo -f ../charts/pangeo.yaml
-```
-```
-# Create namespace if doesn't exist 
-if  ! kubectl get ns $ENV 2&>1 >/dev/null; then
-    kubectl create ns $ENV
-fi
-kubectl apply -f ../charts/azure-file-pvc-scratch.yaml -n $ENV  
-```
-
-```
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: azure-scratch
-spec:
-  accessModes:
-    - ReadWriteMany
-  storageClassName: azurefile
-  resources:
-    requests:
-      storage: 100Gi
-
-```
