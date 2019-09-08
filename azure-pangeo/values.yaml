@@ -78,31 +78,21 @@ pangeo:
         KRONTAB_OWNER: "$JUPYTERHUB_USER"
       storage:
         dynamic:
-          StorageClass: azurefile
+          StorageClass: azurefile-retain
         extraVolumes:
-
-        # - name: scratch
-        #   flexVolume:
-        #     driver: "informaticslab/goofys-flex-volume"
-        #     options:
-        #       bucket: "informatics-pangeo-scratch"
-        #       dirMode: "0777"
-        #       fileMode: "0777"
+        - name: scratch
+          persistentVolumeClaim:
+            claimName: scratch
         - name: daskernetes-config
           configMap:
             name: daskernetes-config
-        - name: krontab-config
-          configMap:
-            name: krontab-config
-        extraVolumeMounts:
 
-        # - name: scratch
-        #   mountPath: /scratch
+        extraVolumeMounts:
+        - name: scratch
+          mountPath: /scratch
         - name: daskernetes-config
           mountPath: /etc/daskernetes
           readOnly: true
-        - name: krontab-config
-          mountPath: /etc/xdg/krontab/krontab/templates
 
     auth:
       admin:
