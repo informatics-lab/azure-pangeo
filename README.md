@@ -36,9 +36,9 @@ helm install azure-pangeo --name=panzure-dev.informaticslab.co.uk --namespace=pa
 
 # Apply changes
 # prod
-helm upgrade panzure.informaticslab.co.uk azure-pangeo -f env/panzure/values.yaml -f env/panzure/secrets.yaml
+helm upgrade panzure.informaticslab.co.uk azure-pangeo --namespace=panzure -f env/panzure/values.yaml -f env/panzure/secrets.yaml
 # dev
-helm upgrade panzure-dev.informaticslab.co.uk azure-pangeo -f env/panzure-dev/values.yaml -f env/panzure-dev/secrets.yaml
+helm upgrade panzure-dev.informaticslab.co.uk azure-pangeo --namespace=panzure-dev -f env/panzure-dev/values.yaml -f env/panzure-dev/secrets.yaml
 
 # Delete
 # prod
