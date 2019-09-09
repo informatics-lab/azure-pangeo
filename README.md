@@ -34,6 +34,9 @@ helm install azure-pangeo --name=panzure.informaticslab.co.uk --namespace=panzur
 # dev
 helm install azure-pangeo --name=panzure-dev.informaticslab.co.uk --namespace=panzure-dev -f env/panzure-dev/values.yaml -f env/panzure-dev/secrets.yaml
 
+# Copy blob storage access secret from default namespace to $ENV namespace
+kubectl get secret blobfusecreds -o yaml -n default | grep -v namespace | kubectl --namespace=$ENV apply -f -
+
 # Apply changes
 # prod
 helm upgrade panzure.informaticslab.co.uk azure-pangeo --namespace=panzure -f env/panzure/values.yaml -f env/panzure/secrets.yaml

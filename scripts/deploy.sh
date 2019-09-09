@@ -31,5 +31,8 @@ helm dependency update azure-pangeo
 # Apply changes
 helm upgrade --install $RELEASE_NAME azure-pangeo --namespace $NAMESPACE -f env/$ENV/values.yaml -f env/$ENV/secrets.yaml
 
+# Copy blob storage access secret from default namespace to $ENV namespace
+
+kubectl get secret blobfusecreds -o yaml -n default | grep -v namespace | kubectl --namespace=$ENV apply -f -
 
 echo "*** Deployed successfully ***"
