@@ -35,6 +35,12 @@ helm install azure-pangeo --name=panzure.informaticslab.co.uk --namespace=panzur
 helm install azure-pangeo --name=panzure-dev.informaticslab.co.uk --namespace=panzure-dev -f env/panzure-dev/values.yaml -f env/panzure-dev/secrets.yaml
 
 # Copy blob storage access secret from default namespace to $ENV namespace
+ENV=panzure # PROD
+ENV=panzure-dev # DEV
+BLOB_FUSE_SECRET_NAME=blobfusecreds
+if kubectl -n $ENV get secret $BLOB_FUSE_SECRET_NAME >/dev/null 2>&1  ; then
+    kubectl -n $ENV delete secret $BLOB_FUSE_SECRET_NAME
+fi
 kubectl get secret blobfusecreds -o yaml -n default | grep -v namespace | kubectl --namespace=$ENV apply -f -
 
 # Apply changes

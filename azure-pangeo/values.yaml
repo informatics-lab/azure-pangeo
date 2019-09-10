@@ -76,9 +76,11 @@ pangeo:
         # Workaround for https://github.com/ContinuumIO/anaconda-issues/issues/6698
         _PYTHON_SYSCONFIGDATA_NAME: "_sysconfigdata_m_linux_x86_64-linux-gnu"
         KRONTAB_OWNER: "$JUPYTERHUB_USER"
+
       storage:
         dynamic:
           StorageClass: azurefile-retain
+
         extraVolumes:
         - name: scratch
           persistentVolumeClaim:
@@ -86,6 +88,17 @@ pangeo:
         - name: daskernetes-config
           configMap:
             name: daskernetes-config
+        # - name: mo-uki-radar-comp-3yr
+        #   flexVolume:
+        #     driver: "azure/blobfuse"
+        #     readOnly: false
+        #     secretRef:
+        #       name: blobfusecreds
+        #     options:
+        #       container: mo-uki-radar-comp-3yr
+        #       tmppath: /tmp/blobfuse
+        #       mountoptions: "--file-cache-timeout-in-seconds=600"
+        
 
         extraVolumeMounts:
         - name: scratch
@@ -93,6 +106,10 @@ pangeo:
         - name: daskernetes-config
           mountPath: /etc/daskernetes
           readOnly: true
+        # - name: mo-uki-radar-comp-3yr
+        #   mountPath: /mo-uki-radar-comp-3yr
+
+        
 
     auth:
       admin:

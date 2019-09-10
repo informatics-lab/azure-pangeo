@@ -7,3 +7,4 @@ kubernetes/helm-config.yaml
 *.lock
 charts/
 **/secrets.yaml
+tmp*.yaml
