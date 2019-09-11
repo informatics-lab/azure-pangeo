@@ -79,7 +79,8 @@ pangeo:
 
       storage:
         dynamic:
-          StorageClass: azurefile-retain
+          storageClass: azurefile-env-retain
+          storageAccessModes: [ReadWriteMany]
 
         extraVolumes:
         - name: scratch
@@ -98,6 +99,16 @@ pangeo:
               container: mo-uki-radar-comp-3yr
               tmppath: /tmp/blobfuse
               mountoptions: "--file-cache-timeout-in-seconds=600"
+        - name: scratch-blob
+          flexVolume:
+            driver: "azure/blobfuse"
+            readOnly: true
+            secretRef:
+              name: blobfusecreds
+            options:
+              container: scratch
+              tmppath: /tmp/blobfuse
+              mountoptions: "--file-cache-timeout-in-seconds=600"
         
 
         extraVolumeMounts:
@@ -108,6 +119,9 @@ pangeo:
           readOnly: true
         - name: mo-uki-radar-comp-3yr
           mountPath: /mo-uki-radar-comp-3yr
+          readOnly: true
+        - name: scratch-blob
+          mountPath: /scratch-old
           readOnly: true
 
         

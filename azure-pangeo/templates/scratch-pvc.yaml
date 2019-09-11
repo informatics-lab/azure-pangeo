@@ -3,13 +3,11 @@ kind: PersistentVolumeClaim
 
 metadata:
   name: scratch
-  annotations:
-    volume.beta.kubernetes.io/storage-provisioner:  kubernetes.io/azurefile-retain
 
 spec:
   accessModes:
     - ReadWriteMany
-  storageClassName: azurefile-retain
+  storageClassName: azurefile-common-retain
   resources:
     requests:
       storage: 100Gi
