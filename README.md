@@ -18,36 +18,14 @@ ln -s $PATH_TO_PRIVATE_CONFIG/jade-pangeo/panzure/secrets.yaml env/panzure/secre
 ln -s $PATH_TO_PRIVATE_CONFIG/jade-pangeo/panzure-dev/secrets.yaml env/panzure-dev/secrets.yaml
 ```
 
-Now you can go ahead and run helm.
+Now you can go ahead and deploy
 
 ```shell
-# Add upstream pangeo repo and update
-helm repo add pangeo https://pangeo-data.github.io/helm-chart/
-helm repo update
-
-# Get deps
-helm dependency update azure-pangeo
-
-# Install
+# Create or update
 # prod
-helm install azure-pangeo --name=panzure.informaticslab.co.uk --namespace=panzure -f env/panzure/values.yaml -f env/panzure/secrets.yaml
-# dev
-helm install azure-pangeo --name=panzure-dev.informaticslab.co.uk --namespace=panzure-dev -f env/panzure-dev/values.yaml -f env/panzure-dev/secrets.yaml
-
-# Copy blob storage access secret from default namespace to $ENV namespace
-ENV=panzure # PROD
-ENV=panzure-dev # DEV
-BLOB_FUSE_SECRET_NAME=blobfusecreds
-if kubectl -n $ENV get secret $BLOB_FUSE_SECRET_NAME >/dev/null 2>&1  ; then
-    kubectl -n $ENV delete secret $BLOB_FUSE_SECRET_NAME
-fi
-kubectl get secret blobfusecreds -o yaml -n default | grep -v namespace | kubectl --namespace=$ENV apply -f -
-
-# Apply changes
-# prod
-helm upgrade panzure.informaticslab.co.uk azure-pangeo --namespace=panzure -f env/panzure/values.yaml -f env/panzure/secrets.yaml
-# dev
-helm upgrade panzure-dev.informaticslab.co.uk azure-pangeo --namespace=panzure-dev -f env/panzure-dev/values.yaml -f env/panzure-dev/secrets.yaml
+./scripts/deploy.sh panzure panzure panzure --skip-helm-downgrade
+#dev
+./scripts/deploy.sh panzure-dev panzure-dev panzure-dev --skip-helm-downgrade
 
 # Delete
 # prod

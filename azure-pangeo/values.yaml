@@ -102,11 +102,21 @@ pangeo:
         - name: scratch-blob
           flexVolume:
             driver: "azure/blobfuse"
-            readOnly: true
+            readOnly: false
             secretRef:
               name: blobfusecreds
             options:
               container: scratch
+              tmppath: /tmp/blobfuse
+              mountoptions: "--file-cache-timeout-in-seconds=600"
+        - name: aws-earth-nc-files
+          flexVolume:
+            driver: "azure/blobfuse"
+            readOnly: true
+            secretRef:
+              name: earthblobfusecreds
+            options:
+              container: aws-earth-nc-files
               tmppath: /tmp/blobfuse
               mountoptions: "--file-cache-timeout-in-seconds=600"
         
@@ -121,7 +131,10 @@ pangeo:
           mountPath: /mo-uki-radar-comp-3yr
           readOnly: true
         - name: scratch-blob
-          mountPath: /scratch-old
+          mountPath: /scratch-blob
+          readOnly: false
+        - name: aws-earth-nc-files
+          mountPath: /aws-earth-nc-files
           readOnly: true
 
         
