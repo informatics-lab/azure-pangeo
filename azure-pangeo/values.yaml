@@ -97,7 +97,7 @@ pangeo:
               name: blobfusecreds
             options:
               container: mo-uki-radar-comp-3yr
-              tmppath: /tmp/blobfuse
+              tmppath: /tmp/mo-uki-radar-comp-3yr
               mountoptions: "--file-cache-timeout-in-seconds=600"
         - name: scratch-blob
           flexVolume:
@@ -107,7 +107,7 @@ pangeo:
               name: blobfusecreds
             options:
               container: scratch
-              tmppath: /tmp/blobfuse
+              tmppath: /tmp/scratch-blob
               mountoptions: "--file-cache-timeout-in-seconds=600"
         - name: aws-earth-nc-files
           flexVolume:
@@ -117,7 +117,7 @@ pangeo:
               name: earthblobfusecreds
             options:
               container: aws-earth-nc-files
-              tmppath: /tmp/blobfuse
+              tmppath: /tmp/aws-earth-nc-files
               mountoptions: "--file-cache-timeout-in-seconds=600"
         
 
