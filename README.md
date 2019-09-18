@@ -141,3 +141,27 @@ SSH_KEY=$(cat key |base64)
 ```
 
 `$SSH_KEY` is the env var `key.pub` is the public deploy key for github.
+
+
+### TODOS
+
+Shared file storage on scratch across environments. Currently not doing with blob store but want to also do it with file store. Stopped as this as it was getting a little messy.
+
+Would require (on deploy) creating the file-share if not exists:
+
+```
+# Create scratch files share if not exist
+SCRATCH_FILE_SHARE_NAME="panzure-scratch"
+SHARED_STORAGE_ACCOUNT_NAME="panzuredata"
+az storage share create
+if ! az storage share show --account-name $SHARED_STORAGE_ACCOUNT_NAME --name $SCRATCH_FILE_SHARE_NAME > /dev/null 2>&1; then
+    echo "need to make it"
+    az storage share create --name $SCRATCH_FILE_SHARE_NAME --quota 100 --account-name $SHARED_STORAGE_ACCOUNT_NAME
+fi
+```
+
+Then creating a `PV`, I believe if the name was exactly the same as the name of the file share (and account the same) then it would 'connect' but not tested this.
+In order to create the `PV` would need to create the secret for the `PV` to use as per here https://docs.microsoft.com/en-us/azure/aks/azure-files-volume this is currently
+automatically done with the dynamic PVC provisioning but the automatically created one would not necessarily be available at the time that it was required.
+
+The `scratch-pvc` would need to be set up to reference the new `PV`.
