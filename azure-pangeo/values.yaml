@@ -102,7 +102,7 @@ pangeo:
         - name: scratch-blob
           flexVolume:
             driver: "azure/blobfuse"
-            readOnly: false
+            readOnly: true
             secretRef:
               name: blobfusecreds
             options:
@@ -132,7 +132,7 @@ pangeo:
           readOnly: true
         - name: scratch-blob
           mountPath: /scratch-blob
-          readOnly: false
+          readOnly: true
         - name: aws-earth-nc-files
           mountPath: /aws-earth-nc-files
           readOnly: true
