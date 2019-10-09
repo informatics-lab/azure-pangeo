@@ -28,8 +28,8 @@ pangeo:
 
           c.KubeSpawner.profile_list = [
             {
-              'display_name': 'Informatics Lab - Pangeo Notebook v0.8.1',
-              'kubespawner_override': {'singleuser_image_spec': 'informaticslab/pangeo-notebook:0.8.1'},
+              'display_name': 'informaticslab/panzure-shared-env-notebook:0.0.3',
+              'kubespawner_override': {'singleuser_image_spec': 'informaticslab/panzure-shared-env-notebook:0.0.3'},
               'default': True
             }
             ]
@@ -51,15 +51,9 @@ pangeo:
 
     singleuser:
       image:
-        name: informaticslab/pangeo-notebook
-        tag: 0.8.1
-      imagePullSecret:
-        enabled: OVERRIDEME
-        registry: OVERRIDEME
-        username: OVERRIDEME
-        email: OVERRIDEME
-        password: OVERRIDEME
-      cmd: jupyter-labhub
+        name: informaticslab/panzure-shared-env-notebook
+        tag: 0.0.3
+
       defaultUrl: "/lab"
       cpu:
         limit: 2
@@ -77,65 +71,87 @@ pangeo:
         _PYTHON_SYSCONFIGDATA_NAME: "_sysconfigdata_m_linux_x86_64-linux-gnu"
         KRONTAB_OWNER: "$JUPYTERHUB_USER"
 
+      fsGid: 0
+      uid: 0
+      cmd: ["jupyter-labhub","--allow-root"]
       storage:
-        dynamic:
-          storageClass: azurefile-env-retain
-          storageAccessModes: [ReadWriteMany]
+        type: "static" # inspired from https://zero-to-jupyterhub.readthedocs.io/en/latest/amazon/efs_storage.html
+        static:
+          pvcName: "pvc-panzure-dev-homespace"
+          subPath: 'home/{username}'
+          
+      
+        
+
+
+          # storageAccessModes: [ReadWriteMany]
 
         extraVolumes:
-        - name: scratch
-          persistentVolumeClaim:
-            claimName: scratch
+        # - name: scratch
+        #   persistentVolumeClaim:
+        #     claimName: scratch
+
+
+        
+        # - name: envs
+        #   persistentVolumeClaim: 
+        #     claimName: "pvc-panzure-dev-homespace"
+
         - name: daskernetes-config
           configMap:
             name: daskernetes-config
-        - name: mo-uki-radar-comp-3yr
-          flexVolume:
-            driver: "azure/blobfuse"
-            readOnly: true
-            secretRef:
-              name: blobfusecreds
-            options:
-              container: mo-uki-radar-comp-3yr
-              tmppath: /tmp/mo-uki-radar-comp-3yr
-              mountoptions: "--file-cache-timeout-in-seconds=600"
-        - name: scratch-blob
-          flexVolume:
-            driver: "azure/blobfuse"
-            readOnly: true
-            secretRef:
-              name: blobfusecreds
-            options:
-              container: scratch
-              tmppath: /tmp/scratch-blob
-              mountoptions: "--file-cache-timeout-in-seconds=600"
-        - name: aws-earth-nc-files
-          flexVolume:
-            driver: "azure/blobfuse"
-            readOnly: true
-            secretRef:
-              name: earthblobfusecreds
-            options:
-              container: aws-earth-nc-files
-              tmppath: /tmp/aws-earth-nc-files
-              mountoptions: "--file-cache-timeout-in-seconds=600"
+        # - name: mo-uki-radar-comp-3yr
+        #   flexVolume:
+        #     driver: "azure/blobfuse"
+        #     readOnly: true
+        #     secretRef:
+        #       name: blobfusecreds
+        #     options:
+        #       container: mo-uki-radar-comp-3yr
+        #       tmppath: /tmp/mo-uki-radar-comp-3yr
+        #       mountoptions: "--file-cache-timeout-in-seconds=600"
+        # - name: scratch-blob
+        #   flexVolume:
+        #     driver: "azure/blobfuse"
+        #     readOnly: true
+        #     secretRef:
+        #       name: blobfusecreds
+        #     options:
+        #       container: scratch
+        #       tmppath: /tmp/scratch-blob
+        #       mountoptions: "--file-cache-timeout-in-seconds=600"
+        # - name: aws-earth-nc-files
+        #   flexVolume:
+        #     driver: "azure/blobfuse"
+        #     readOnly: true
+        #     secretRef:
+        #       name: earthblobfusecreds
+        #     options:
+        #       container: aws-earth-nc-files
+        #       tmppath: /tmp/aws-earth-nc-files
+        #       mountoptions: "--file-cache-timeout-in-seconds=600"
         
 
         extraVolumeMounts:
-        - name: scratch
-          mountPath: /scratch
+        # - name: scratch
+        #   mountPath: /scratch
+        - name: home
+          mountPath: /envs
+          subPath: 'envs/auto-build-envs'
+          readOnly: true
+
         - name: daskernetes-config
           mountPath: /etc/daskernetes
           readOnly: true
-        - name: mo-uki-radar-comp-3yr
-          mountPath: /mo-uki-radar-comp-3yr
-          readOnly: true
-        - name: scratch-blob
-          mountPath: /scratch-blob
-          readOnly: true
-        - name: aws-earth-nc-files
-          mountPath: /aws-earth-nc-files
-          readOnly: true
+        # - name: mo-uki-radar-comp-3yr
+        #   mountPath: /mo-uki-radar-comp-3yr
+        #   readOnly: true
+        # - name: scratch-blob
+        #   mountPath: /scratch-blob
+        #   readOnly: true
+        # - name: aws-earth-nc-files
+        #   mountPath: /aws-earth-nc-files
+        #   readOnly: true
 
         
 

@@ -4,9 +4,6 @@ metadata:
   name: daskernetes-config
 data:
   worker-template.yaml: |-
-    metadata:
-      annotations:
-        iam.amazonaws.com/role: "arn:aws:iam::536099501702:role/pangeo"
     spec:
       restartPolicy: Never
       containers:
