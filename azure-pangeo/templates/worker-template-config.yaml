@@ -5,11 +5,13 @@ metadata:
 data:
   worker-template.yaml: |-
     spec:
+      securityContext:
+        runAsUser: 0
       restartPolicy: Never
       containers:
         - name: dask-worker
           image: {{ .Values.pangeo.jupyterhub.singleuser.image.name }}:{{ .Values.pangeo.jupyterhub.singleuser.image.tag }}
-          args: [dask-worker, --nthreads, '1', --no-bokeh, --memory-limit, 6GB, --death-timeout, '60']
+          args: [run_as_conda_env.sh,"{CONDA_DEFAULT_ENV}", dask-worker, --nthreads, '1', --no-bokeh, --memory-limit, 6GB, --death-timeout, '60', --local-directory, '/scratch']
           resources:
             limits:
               cpu: "1"
@@ -17,3 +19,18 @@ data:
             requests:
               cpu: "1"
               memory: 6G
+          volumeMounts:
+            - mountPath: /home/jovyan
+              name: home
+              subPath: home/{JUPYTERHUB_USER}
+              readOnly: true
+
+            - mountPath: /envs
+              name: home
+              subPath: envs/auto-build-envs
+              readOnly: true
+
+      volumes:
+        - name: home
+          persistentVolumeClaim:
+            claimName: pvc-nfs

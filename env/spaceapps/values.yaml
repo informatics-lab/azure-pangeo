@@ -1,0 +1,17 @@
+redirect:
+  enabled: false
+
+pangeo:
+  jupyterhub:
+    ingress:
+      hosts:
+      - spaceapps.informaticslab.co.uk
+      tls:
+        - hosts:
+          - spaceapps.informaticslab.co.uk
+          secretName: kubelego-tls-proxy-spaceapps.informaticslab.co.uk
+
+    auth:
+      github:
+        org_whitelist: null
+        callbackUrl: "https://spaceapps.informaticslab.co.uk/hub/oauth_callback"

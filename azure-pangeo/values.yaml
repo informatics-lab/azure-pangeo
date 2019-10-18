@@ -28,8 +28,8 @@ pangeo:
 
           c.KubeSpawner.profile_list = [
             {
-              'display_name': 'informaticslab/panzure-shared-env-notebook:0.0.3',
-              'kubespawner_override': {'singleuser_image_spec': 'informaticslab/panzure-shared-env-notebook:0.0.3'},
+              'display_name': 'informaticslab/panzure-shared-env-notebook:0.0.11',
+              'kubespawner_override': {'image_spec': 'informaticslab/panzure-shared-env-notebook:0.0.11'},
               'default': True
             }
             ]
@@ -52,7 +52,7 @@ pangeo:
     singleuser:
       image:
         name: informaticslab/panzure-shared-env-notebook
-        tag: 0.0.3
+        tag: 0.0.11
 
       defaultUrl: "/lab"
       cpu:
@@ -63,7 +63,7 @@ pangeo:
         guarantee: 2G
       extraEnv:
         INTAKE_PATH: "/s3/informatics-pangeo-data/catalogs/weather:/s3/informatics-pangeo-data/catalogs/climate"
-        EXAMPLES_GIT_URL: https://github.com/informatics-lab/example-notebooks.git
+        EXAMPLES_GIT_URL: https://github.com/informatics-lab/panzure-examples.git
         DASK_KUBERNETES__DIAGNOSTICS_LINK: "{JUPYTERHUB_SERVICE_PREFIX}proxy/{port}/status"
         DASK_KUBERNETES__WORKER_TEMPLATE_PATH: "/etc/daskernetes/worker-template.yaml"
         DASK_KUBERNETES__WORKER_NAME: "dask-{JUPYTERHUB_USER}-{uuid}"
@@ -77,7 +77,7 @@ pangeo:
       storage:
         type: "static" # inspired from https://zero-to-jupyterhub.readthedocs.io/en/latest/amazon/efs_storage.html
         static:
-          pvcName: "pvc-panzure-dev-homespace"
+          pvcName: "pvc-nfs"
           subPath: 'home/{username}'
           
       
@@ -87,6 +87,19 @@ pangeo:
           # storageAccessModes: [ReadWriteMany]
 
         extraVolumes:
+
+
+        - name: aws-earth-nc-files
+          flexVolume:
+            driver: "azure/blobfuse"
+            readOnly: true
+            secretRef:
+              name: blobfusecreds
+            options:
+              container: aws-earth-nc-files
+              tmppath: /tmp/aws-earth-nc-files
+              mountoptions: "--file-cache-timeout-in-seconds=600"
+
         # - name: scratch
         #   persistentVolumeClaim:
         #     claimName: scratch
@@ -143,6 +156,11 @@ pangeo:
         - name: daskernetes-config
           mountPath: /etc/daskernetes
           readOnly: true
+
+        - name: aws-earth-nc-files
+          mountPath: /aws-earth-nc-files
+          readOnly: true
+
         # - name: mo-uki-radar-comp-3yr
         #   mountPath: /mo-uki-radar-comp-3yr
         #   readOnly: true
