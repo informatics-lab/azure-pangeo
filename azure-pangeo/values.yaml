@@ -77,7 +77,7 @@ pangeo:
       storage:
         type: "static" # inspired from https://zero-to-jupyterhub.readthedocs.io/en/latest/amazon/efs_storage.html
         static:
-          pvcName: "pv-nfs"
+          pvcName: "pvc-nfs"
           subPath: 'home/{username}'
           
       
