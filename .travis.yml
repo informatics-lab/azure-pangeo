@@ -14,12 +14,12 @@ deploy:
 
 - provider: script
   skip_cleanup: true
-  script: bash $TRAVIS_BUILD_DIR/scripts/deploy.sh panzure-dev panzure-dev.informaticslab.co.uk panzure-dev
+  script: bash $TRAVIS_BUILD_DIR/scripts/deploy.sh panzure-dev panzure-dev panzure-dev
   on:
     branch: master
 
 - provider: script
   skip_cleanup: true
-  script: bash $TRAVIS_BUILD_DIR/scripts/deploy.sh panzure panzure.informaticslab.co.uk panzure
+  script: bash $TRAVIS_BUILD_DIR/scripts/deploy.sh panzure panzure panzure
   on:
     tags: true
