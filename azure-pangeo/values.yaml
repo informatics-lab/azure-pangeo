@@ -4,10 +4,8 @@ telegraf:
 redirect:
   enabled: false
 
-
 pangeo:
   jupyterhub:
-
     ingress:
       enabled: true
       annotations:
@@ -20,7 +18,6 @@ pangeo:
         type: ClusterIP
 
     hub:
-
       extraConfig:
         customPodHook: |
           c.JupyterHub.template_paths = ['/usr/local/share/jupyterhub/custom_templates/',
@@ -44,7 +41,7 @@ pangeo:
     singleuser:
       image:
         name: informaticslab/panzure-shared-env-notebook
-        tag: 0.0.12
+        tag: 0.0.14
 
       defaultUrl: "/lab"
       cpu:
@@ -66,7 +63,7 @@ pangeo:
       storage:
         type: "static" # inspired from https://zero-to-jupyterhub.readthedocs.io/en/latest/amazon/efs_storage.html
         static:
-          pvcName: "pvc-nfs-v2"
+          pvcName: "pvc-nfs"
           subPath: 'home/{username}'
 
         extraVolumes:
@@ -80,31 +77,40 @@ pangeo:
               container: aws-earth-nc-files
               tmppath: /tmp/aws-earth-nc-files
               mountoptions: "--file-cache-timeout-in-seconds=600"
-
         - name: dask-config
           configMap:
             name: dask-config
-        
+        - name: data-share
+          persistentVolumeClaim:
+            claimName: pvc-nfs-data
+        - name: project-data-ukv
+          flexVolume:
+            driver: "azure/blobfuse"
+            readOnly: true
+            secretRef:
+              name: blobfusecreds
+            options:
+              container: project-data-ukv
+              tmppath: /tmp/project-data-ukv
+              mountoptions: "--file-cache-timeout-in-seconds=600"
 
         extraVolumeMounts:
-        - name: home
-          mountPath: /data-share
-          subPath: 'data-share'
-
+        - name: aws-earth-nc-files
+          mountPath: /data/aws-earth-nc-files
+          readOnly: true
+        - name: dask-config
+          mountPath: /etc/dask
+          readOnly: true
+        - name: data-share
+          mountPath: /data/share
         - name: home
           mountPath: /envs
           subPath: 'envs/auto-build-envs'
           readOnly: true
-
-        - name: aws-earth-nc-files
-          mountPath: /aws-earth-nc-files
+        - name: project-data-ukv
+          mountPath: /data/project-data-ukv
           readOnly: true
 
-        - name: dask-config
-          mountPath: /etc/dask
-          readOnly: true
-
-        
     auth:
       admin:
         access: true
