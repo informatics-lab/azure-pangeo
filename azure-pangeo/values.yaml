@@ -26,14 +26,6 @@ pangeo:
           c.JupyterHub.template_paths = ['/usr/local/share/jupyterhub/custom_templates/',
                                         '/usr/local/share/jupyterhub/templates/']
 
-          c.KubeSpawner.profile_list = [
-            {
-              'display_name': 'informaticslab/panzure-shared-env-notebook:0.0.11',
-              'kubespawner_override': {'singleuser_image_spec': 'informaticslab/panzure-shared-env-notebook:0.0.11'},
-              'default': True
-            }
-            ]
-
       cookieSecret: OVERRIDEME
 
       extraVolumes:
@@ -52,7 +44,7 @@ pangeo:
     singleuser:
       image:
         name: informaticslab/panzure-shared-env-notebook
-        tag: 0.0.11
+        tag: 0.0.12
 
       defaultUrl: "/lab"
       cpu:
@@ -63,10 +55,7 @@ pangeo:
         guarantee: 2G
       extraEnv:
         INTAKE_PATH: "/s3/informatics-pangeo-data/catalogs/weather:/s3/informatics-pangeo-data/catalogs/climate"
-        EXAMPLES_GIT_URL: https://github.com/informatics-lab/example-notebooks.git
-        DASK_KUBERNETES__DIAGNOSTICS_LINK: "{JUPYTERHUB_SERVICE_PREFIX}proxy/{port}/status"
-        DASK_KUBERNETES__WORKER_TEMPLATE_PATH: "/etc/daskernetes/worker-template.yaml"
-        DASK_KUBERNETES__WORKER_NAME: "dask-{JUPYTERHUB_USER}-{uuid}"
+        EXAMPLES_GIT_URL: https://github.com/informatics-lab/pangeo-workshop.git
         # Workaround for https://github.com/ContinuumIO/anaconda-issues/issues/6698
         _PYTHON_SYSCONFIGDATA_NAME: "_sysconfigdata_m_linux_x86_64-linux-gnu"
         KRONTAB_OWNER: "$JUPYTERHUB_USER"
@@ -77,98 +66,45 @@ pangeo:
       storage:
         type: "static" # inspired from https://zero-to-jupyterhub.readthedocs.io/en/latest/amazon/efs_storage.html
         static:
-          pvcName: "pvc-nfs"
+          pvcName: "pvc-nfs-v2"
           subPath: 'home/{username}'
-          
-      
-        
-
-
-          # storageAccessModes: [ReadWriteMany]
 
         extraVolumes:
-        - name: data
-          persistentVolumeClaim:
-            claimName: pvc-nfs-data
-
-
-        
-        # - name: envs
-        #   persistentVolumeClaim: 
-        #     claimName: "pvc-panzure-dev-homespace"
-
-        - name: daskernetes-config
-          configMap:
-            name: daskernetes-config
-        # - name: mo-uki-radar-comp-3yr
-        #   flexVolume:
-        #     driver: "azure/blobfuse"
-        #     readOnly: true
-        #     secretRef:
-        #       name: blobfusecreds
-        #     options:
-        #       container: mo-uki-radar-comp-3yr
-        #       tmppath: /tmp/mo-uki-radar-comp-3yr
-        #       mountoptions: "--file-cache-timeout-in-seconds=600"
-        # - name: scratch-blob
-        #   flexVolume:
-        #     driver: "azure/blobfuse"
-        #     readOnly: true
-        #     secretRef:
-        #       name: blobfusecreds
-        #     options:
-        #       container: scratch
-        #       tmppath: /tmp/scratch-blob
-        #       mountoptions: "--file-cache-timeout-in-seconds=600"
-
-        - name: mogreps-uk
+        - name: aws-earth-nc-files
           flexVolume:
             driver: "azure/blobfuse"
             readOnly: true
             secretRef:
               name: blobfusecreds
             options:
-              container: mogreps-uk
-              tmppath: /tmp/mogreps-uk
+              container: aws-earth-nc-files
+              tmppath: /tmp/aws-earth-nc-files
               mountoptions: "--file-cache-timeout-in-seconds=600"
 
-
-        # - name: aws-earth-nc-files
-        #   flexVolume:
-        #     driver: "azure/blobfuse"
-        #     readOnly: true
-        #     secretRef:
-        #       name: earthblobfusecreds
-        #     options:
-        #       container: aws-earth-nc-files
-        #       tmppath: /tmp/aws-earth-nc-files
-        #       mountoptions: "--file-cache-timeout-in-seconds=600"
+        - name: dask-config
+          configMap:
+            name: dask-config
         
 
         extraVolumeMounts:
-        - name: data
-          mountPath: /data
+        - name: home
+          mountPath: /data-share
+          subPath: 'data-share'
+
         - name: home
           mountPath: /envs
           subPath: 'envs/auto-build-envs'
           readOnly: true
 
-        - name: daskernetes-config
-          mountPath: /etc/daskernetes
+        - name: aws-earth-nc-files
+          mountPath: /aws-earth-nc-files
           readOnly: true
-        # - name: mo-uki-radar-comp-3yr
-        #   mountPath: /mo-uki-radar-comp-3yr
-        #   readOnly: true
-        # - name: scratch-blob
-        #   mountPath: /scratch-blob
-        #   readOnly: true
 
-        - name: mogreps-uk
-          mountPath: /mogreps-uk
+        - name: dask-config
+          mountPath: /etc/dask
           readOnly: true
 
         
-
     auth:
       admin:
         access: true

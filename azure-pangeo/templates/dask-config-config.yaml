@@ -1,0 +1,81 @@
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: dask-config
+data:
+  config.yaml:  |-
+    distributed:
+      version: 2
+
+      dashboard:
+        link: /user/{JUPYTERHUB_USER}/proxy/{port}/status
+
+      scheduler:
+        idle-timeout: 3600s
+      
+      admin:
+        tick:
+          limit: 5s
+
+      logging:
+        distributed.core: warning
+        distributed.scheduler: warning
+        distributed: warning
+        bokeh: critical
+        # http://stackoverflow.com/questions/21234772/python-tornado-disable-logging-to-stderr
+        tornado: critical
+        tornado.application: error
+
+    kubernetes:
+      name: dask-{JUPYTERHUB_USER}-{uuid}
+      worker-template:
+        spec:
+          securityContext:
+            runAsUser: 0
+          restartPolicy: Never
+          containers:
+            - name: dask-${JUPYTERHUB_USER}
+              image: ${JUPYTER_IMAGE_SPEC}
+              args: [run_as_conda_env.sh,"datasci", dask-worker, --nthreads, '1', --no-bokeh, --memory-limit, 6GB, --death-timeout, '60', --local-directory, '/scratch']
+              resources:
+                limits:
+                  cpu: "1"
+                  memory: 6G
+                requests:
+                  cpu: "1"
+                  memory: 6G
+              volumeMounts:
+                - name: dask-config
+                  mountPath: /etc/dask
+                  readOnly: true
+
+                - name: home
+                  mountPath: /data-share
+                  subPath: data-share
+
+                - mountPath: /home/jovyan
+                  name: home
+                  subPath: home/${JUPYTERHUB_USER}
+                  readOnly: true
+
+                - mountPath: /envs
+                  name: home
+                  subPath: envs/auto-build-envs
+                  readOnly: true
+
+          volumes:
+            - name: dask-config
+              configMap:
+                name: dask-config
+
+            - name: home
+              persistentVolumeClaim:
+                claimName: pvc-nfs-v2
+
+    labextension:
+      factory:
+        module: dask_kubernetes
+        class: KubeCluster
+        args: []
+        kwargs: {}
