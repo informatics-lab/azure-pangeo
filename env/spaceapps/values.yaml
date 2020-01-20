@@ -4,6 +4,10 @@ redirect:
 
 pangeo:
   jupyterhub:
+    hub:
+      cookieSecret: "64 - hex"
+    proxy:
+      secretToken: "64 - hex"
     ingress:
       hosts:
       - workshop.informaticslab.co.uk

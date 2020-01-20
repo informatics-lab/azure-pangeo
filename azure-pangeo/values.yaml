@@ -44,7 +44,7 @@ pangeo:
     singleuser:
       image:
         name: informaticslab/panzure-shared-env-notebook
-        tag: 0.0.12
+        tag: 0.0.14
 
       defaultUrl: "/lab"
       cpu:
@@ -66,20 +66,10 @@ pangeo:
       storage:
         type: "static" # inspired from https://zero-to-jupyterhub.readthedocs.io/en/latest/amazon/efs_storage.html
         static:
-          pvcName: "pvc-nfs-v2"
+          pvcName: "pvc-nfs"
           subPath: 'home/{username}'
 
         extraVolumes:
-        - name: aws-earth-nc-files
-          flexVolume:
-            driver: "azure/blobfuse"
-            readOnly: true
-            secretRef:
-              name: blobfusecreds
-            options:
-              container: aws-earth-nc-files
-              tmppath: /tmp/aws-earth-nc-files
-              mountoptions: "--file-cache-timeout-in-seconds=600"
 
         - name: dask-config
           configMap:
@@ -96,9 +86,9 @@ pangeo:
           subPath: 'envs/auto-build-envs'
           readOnly: true
 
-        - name: aws-earth-nc-files
-          mountPath: /aws-earth-nc-files
-          readOnly: true
+        # - name: aws-earth-nc-files
+        #   mountPath: /aws-earth-nc-files
+        #   readOnly: true
 
         - name: dask-config
           mountPath: /etc/dask

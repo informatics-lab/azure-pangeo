@@ -1,0 +1,17 @@
+
+redirect:
+  enabled: false
+
+pangeo:
+  jupyterhub:
+    ingress:
+      hosts:
+      - mogeo.informaticslab.co.uk
+      tls:
+        - hosts:
+          - mogeo.informaticslab.co.uk
+          secretName: kubelego-tls-proxy-mogeo.informaticslab.co.uk
+
+    auth:
+      github:
+        callbackUrl: "https://mogeo.informaticslab.co.uk/hub/oauth_callback"
