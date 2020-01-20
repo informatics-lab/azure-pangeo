@@ -1,0 +1,18 @@
+
+redirect:
+  enabled: false
+
+pangeo:
+  jupyterhub:
+    ingress:
+      hosts:
+      - workshop.informaticslab.co.uk
+      tls:
+        - hosts:
+          - workshop.informaticslab.co.uk
+          secretName: kubelego-tls-proxy-workshop.informaticslab.co.uk
+
+    auth:
+      github:
+        org_whitelist: null  # Disable the default org whitelist
+        callbackUrl: "https://workshop.informaticslab.co.uk/hub/oauth_callback"
