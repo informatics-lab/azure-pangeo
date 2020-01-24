@@ -80,9 +80,9 @@ pangeo:
         - name: dask-config
           configMap:
             name: dask-config
-        - name: data-share
-          persistentVolumeClaim:
-            claimName: pvc-nfs-data
+        # - name: data-share
+        #   persistentVolumeClaim:
+        #     claimName: pvc-nfs-data
         - name: project-data-ukv
           flexVolume:
             driver: "azure/blobfuse"
@@ -93,6 +93,26 @@ pangeo:
               container: project-data-ukv
               tmppath: /tmp/project-data-ukv
               mountoptions: "--file-cache-timeout-in-seconds=600"
+        - name: cssp-china
+          flexVolume:
+            driver: "azure/blobfuse"
+            readOnly: false
+            secretRef:
+              name: blobfusecreds
+            options:
+              container: cssp-china
+              tmppath: /tmp/cssp-china
+              mountoptions: "--file-cache-timeout-in-seconds=600"
+        - name: dm-ukv-data
+          flexVolume:
+            driver: "azure/blobfuse"
+            readOnly: true
+            secretRef:
+              name: blobfusecreds
+            options:
+              container: dm-ukv-data
+              tmppath: /tmp/dm-ukv-data
+              mountoptions: "--file-cache-timeout-in-seconds=600"        
 
         extraVolumeMounts:
         - name: aws-earth-nc-files
@@ -101,14 +121,20 @@ pangeo:
         - name: dask-config
           mountPath: /etc/dask
           readOnly: true
-        - name: data-share
-          mountPath: /data/share
+        # - name: data-share
+        #   mountPath: /data/share
         - name: home
           mountPath: /envs
           subPath: 'envs/auto-build-envs'
           readOnly: true
         - name: project-data-ukv
           mountPath: /data/project-data-ukv
+          readOnly: true
+        - name: cssp-china
+          mountPath: /data/cssp-china
+          readOnly: false
+        - name: dm-ukv-data
+          mountPath: /data/dm-ukv-data
           readOnly: true
 
     auth:

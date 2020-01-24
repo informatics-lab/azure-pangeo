@@ -50,9 +50,8 @@ data:
                   mountPath: /etc/dask
                   readOnly: true
 
-                - name: home
-                  mountPath: /data-share
-                  subPath: data-share
+                # - name: data-share
+                #   mountPath: /data/share
 
                 - mountPath: /home/jovyan
                   name: home
@@ -64,14 +63,48 @@ data:
                   subPath: envs/auto-build-envs
                   readOnly: true
 
+                - name: cssp-china
+                  mountPath: /data/cssp-china
+                  readOnly: false
+
+                - name: dm-ukv-data
+                  mountPath: /data/dm-ukv-data
+                  readOnly: true
+
           volumes:
             - name: dask-config
               configMap:
                 name: dask-config
 
+            # - name: data-share
+            #   persistentVolumeClaim:
+            #     claimName: pvc-nfs-data
+
             - name: home
               persistentVolumeClaim:
-                claimName: pvc-nfs-v2
+                claimName: pvc-nfs
+
+            - name: cssp-china
+              flexVolume:
+                driver: "azure/blobfuse"
+                readOnly: false
+                secretRef:
+                  name: blobfusecreds
+                options:
+                  container: cssp-china
+                  tmppath: /tmp/cssp-china
+                  mountoptions: "--file-cache-timeout-in-seconds=600"
+
+            - name: dm-ukv-data
+              flexVolume:
+                driver: "azure/blobfuse"
+                readOnly: true
+                secretRef:
+                  name: blobfusecreds
+                options:
+                  container: dm-ukv-data
+                  tmppath: /tmp/dm-ukv-data
+                  mountoptions: "--file-cache-timeout-in-seconds=600"
 
     labextension:
       factory:
