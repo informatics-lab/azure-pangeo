@@ -50,8 +50,8 @@ data:
                   mountPath: /etc/dask
                   readOnly: true
 
-                # - name: data-share
-                #   mountPath: /data/share
+                - name: data-share
+                  mountPath: /data/share
 
                 - mountPath: /home/jovyan
                   name: home
@@ -71,14 +71,18 @@ data:
                   mountPath: /data/dm-ukv-data
                   readOnly: true
 
+                - name: misc
+                  mountPath: /data/misc
+                  readOnly: false
+
           volumes:
             - name: dask-config
               configMap:
                 name: dask-config
 
-            # - name: data-share
-            #   persistentVolumeClaim:
-            #     claimName: pvc-nfs-data
+            - name: data-share
+              persistentVolumeClaim:
+                claimName: pvc-nfs-data
 
             - name: home
               persistentVolumeClaim:
@@ -104,6 +108,17 @@ data:
                 options:
                   container: dm-ukv-data
                   tmppath: /tmp/dm-ukv-data
+                  mountoptions: "--file-cache-timeout-in-seconds=600"
+            
+            - name: misc
+              flexVolume:
+                driver: "azure/blobfuse"
+                readOnly: false
+                secretRef:
+                  name: blobfusecreds
+                options:
+                  container: misc
+                  tmppath: /tmp/misc
                   mountoptions: "--file-cache-timeout-in-seconds=600"
 
     labextension:
