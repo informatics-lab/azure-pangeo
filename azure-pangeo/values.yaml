@@ -80,9 +80,11 @@ pangeo:
         - name: dask-config
           configMap:
             name: dask-config
-        # - name: data-share
-        #   persistentVolumeClaim:
-        #     claimName: pvc-nfs-data
+
+        - name: data-share
+          persistentVolumeClaim:
+            claimName: pvc-nfs-data
+
         - name: project-data-ukv
           flexVolume:
             driver: "azure/blobfuse"
@@ -93,6 +95,7 @@ pangeo:
               container: project-data-ukv
               tmppath: /tmp/project-data-ukv
               mountoptions: "--file-cache-timeout-in-seconds=600"
+
         - name: cssp-china
           flexVolume:
             driver: "azure/blobfuse"
@@ -103,6 +106,7 @@ pangeo:
               container: cssp-china
               tmppath: /tmp/cssp-china
               mountoptions: "--file-cache-timeout-in-seconds=600"
+
         - name: dm-ukv-data
           flexVolume:
             driver: "azure/blobfuse"
@@ -112,6 +116,17 @@ pangeo:
             options:
               container: dm-ukv-data
               tmppath: /tmp/dm-ukv-data
+              mountoptions: "--file-cache-timeout-in-seconds=600"
+
+        - name: misc
+          flexVolume:
+            driver: "azure/blobfuse"
+            readOnly: false
+            secretRef:
+              name: blobfusecreds
+            options:
+              container: misc
+              tmppath: /tmp/misc
               mountoptions: "--file-cache-timeout-in-seconds=600"        
 
         extraVolumeMounts:
@@ -121,8 +136,8 @@ pangeo:
         - name: dask-config
           mountPath: /etc/dask
           readOnly: true
-        # - name: data-share
-        #   mountPath: /data/share
+        - name: data-share
+          mountPath: /data/share
         - name: home
           mountPath: /envs
           subPath: 'envs/auto-build-envs'
@@ -136,6 +151,9 @@ pangeo:
         - name: dm-ukv-data
           mountPath: /data/dm-ukv-data
           readOnly: true
+        - name: misc
+          mountPath: /data/misc
+          readOnly: false
 
     auth:
       admin:
