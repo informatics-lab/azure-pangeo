@@ -63,6 +63,10 @@ data:
                   subPath: envs/auto-build-envs
                   readOnly: true
 
+                - name: aws-earth-nc-files
+                  mountPath: /data/aws-earth-nc-files
+                  readOnly: true
+
                 - name: cssp-china
                   mountPath: /data/cssp-china
                   readOnly: false
@@ -87,6 +91,17 @@ data:
             - name: home
               persistentVolumeClaim:
                 claimName: pvc-nfs
+
+            - name: aws-earth-nc-files
+              flexVolume:
+                driver: "azure/blobfuse"
+                readOnly: true
+                secretRef:
+                  name: blobfusecreds
+                options:
+                  container: aws-earth-nc-files
+                  tmppath: /tmp/aws-earth-nc-files
+                  mountoptions: "--file-cache-timeout-in-seconds=600"
 
             - name: cssp-china
               flexVolume:
