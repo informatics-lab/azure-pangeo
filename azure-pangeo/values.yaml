@@ -17,6 +17,12 @@ pangeo:
       service:
         type: ClusterIP
 
+      chp:
+        resources:
+          requests:
+            cpu: 1
+            memory: 2G
+
     hub:
       extraConfig:
         customPodHook: |
@@ -24,7 +30,10 @@ pangeo:
                                         '/usr/local/share/jupyterhub/templates/']
 
       cookieSecret: OVERRIDEME
-
+      resources:
+        requests:
+          cpu: 1
+          memory: 2G
       extraVolumes:
         - name: custom-templates
           gitRepo:
