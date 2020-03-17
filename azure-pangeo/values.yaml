@@ -29,23 +29,6 @@ pangeo:
           c.JupyterHub.template_paths = ['/usr/local/share/jupyterhub/custom_templates/',
                                         '/usr/local/share/jupyterhub/templates/']
 
-          c.KubeSpawner.profile_list = [
-            {
-              'display_name': 'Panzure notebook (standard)',
-              'kubespawner_override': {'singleuser_image_spec': 'informaticslab/panzure-shared-env-notebook:0.0.14'},
-              'default': True
-            },
-            {
-              'display_name': 'Panzure notebook (hefty)',
-              'kubespawner_override': {
-                'singleuser_image_spec': 'informaticslab/panzure-shared-env-notebook:0.0.14',
-                'cpu_guarantee': 7,
-                'cpu_limit': 14,
-                'mem_guarantee': '12G',
-                'mem_limit': '54G',
-                },
-            }]
-
       cookieSecret: OVERRIDEME
       resources:
         requests:
@@ -93,71 +76,26 @@ pangeo:
           subPath: 'home/{username}'
 
         extraVolumes:
-        - name: aws-earth-nc-files
+        - name: clean-air-data
           flexVolume:
             driver: "azure/blobfuse"
             readOnly: true
             secretRef:
               name: blobfusecreds
             options:
-              container: aws-earth-nc-files
-              tmppath: /tmp/aws-earth-nc-files
+              container: clean-air-data
+              tmppath: /tmp/clean-air-data
               mountoptions: "--file-cache-timeout-in-seconds=600"
         - name: dask-config
           configMap:
             name: dask-config
-
         - name: data-share
           persistentVolumeClaim:
-            claimName: pvc-nfs-data
-
-        - name: project-data-ukv
-          flexVolume:
-            driver: "azure/blobfuse"
-            readOnly: true
-            secretRef:
-              name: blobfusecreds
-            options:
-              container: project-data-ukv
-              tmppath: /tmp/project-data-ukv
-              mountoptions: "--file-cache-timeout-in-seconds=600"
-
-        - name: cssp-china
-          flexVolume:
-            driver: "azure/blobfuse"
-            readOnly: false
-            secretRef:
-              name: blobfusecreds
-            options:
-              container: cssp-china
-              tmppath: /tmp/cssp-china
-              mountoptions: "--file-cache-timeout-in-seconds=600"
-
-        - name: dm-ukv-data
-          flexVolume:
-            driver: "azure/blobfuse"
-            readOnly: true
-            secretRef:
-              name: blobfusecreds
-            options:
-              container: dm-ukv-data
-              tmppath: /tmp/dm-ukv-data
-              mountoptions: "--file-cache-timeout-in-seconds=600"
-
-        - name: misc
-          flexVolume:
-            driver: "azure/blobfuse"
-            readOnly: false
-            secretRef:
-              name: blobfusecreds
-            options:
-              container: misc
-              tmppath: /tmp/misc
-              mountoptions: "--file-cache-timeout-in-seconds=600"        
+            claimName: pvc-nfs-data     
 
         extraVolumeMounts:
-        - name: aws-earth-nc-files
-          mountPath: /data/aws-earth-nc-files
+        - name: clean-air-data
+          mountPath: /data/clean-air-data
           readOnly: true
         - name: dask-config
           mountPath: /etc/dask
@@ -168,25 +106,13 @@ pangeo:
           mountPath: /envs
           subPath: 'envs/auto-build-envs'
           readOnly: true
-        - name: project-data-ukv
-          mountPath: /data/project-data-ukv
-          readOnly: true
-        - name: cssp-china
-          mountPath: /data/cssp-china
-          readOnly: false
-        - name: dm-ukv-data
-          mountPath: /data/dm-ukv-data
-          readOnly: true
-        - name: misc
-          mountPath: /data/misc
-          readOnly: false
 
     auth:
       admin:
         access: true
         users:
           - DPeterK
-          - niallrobinson
+          - bsherratt
           - tam203
 
       type: github

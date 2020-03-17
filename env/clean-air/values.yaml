@@ -1,0 +1,24 @@
+
+redirect:
+  enabled: false
+
+pangeo:
+  jupyterhub:
+    ingress:
+      hosts:
+      - clean-air.informaticslab.co.uk
+      tls:
+        - hosts:
+          - clean-air.informaticslab.co.uk
+          secretName: kubelego-tls-proxy-clean-air.informaticslab.co.uk
+
+    auth:
+      admin:
+        users:
+          - bsherratt
+          - DPeterK
+          - tam203
+      github:
+        callbackUrl: "https://clean-air.informaticslab.co.uk/hub/oauth_callback"
+        org_whitelist: 
+          - "clean-air-pangeo"
