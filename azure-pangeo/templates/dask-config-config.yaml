@@ -75,6 +75,10 @@ data:
                   mountPath: /data/dm-ukv-data
                   readOnly: true
 
+                - name: exeter-ml
+                  mountPath: /data/exeter-ml
+                  readOnly: true
+
                 - name: misc
                   mountPath: /data/misc
                   readOnly: false
@@ -124,7 +128,18 @@ data:
                   container: dm-ukv-data
                   tmppath: /tmp/dm-ukv-data
                   mountoptions: "--file-cache-timeout-in-seconds=600"
-            
+
+            - name: exeter-ml
+              flexVolume:
+                driver: "azure/blobfuse"
+                readOnly: true
+                secretRef:
+                  name: blobfusecreds
+                options:
+                  container: exeter-ml
+                  tmppath: /tmp/exeter-ml
+                  mountoptions: "--file-cache-timeout-in-seconds=600"
+
             - name: misc
               flexVolume:
                 driver: "azure/blobfuse"
