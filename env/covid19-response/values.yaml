@@ -1,0 +1,75 @@
+
+redirect:
+  enabled: false
+
+pangeo:
+  jupyterhub:
+
+    singleuser:
+      extraEnv:
+        EXAMPLES_GIT_URL: https://github.com/informatics-lab/pangeo-workshop.git
+        # Workaround for https://github.com/ContinuumIO/anaconda-issues/issues/6698
+        _PYTHON_SYSCONFIGDATA_NAME: "_sysconfigdata_m_linux_x86_64-linux-gnu"
+
+
+      storage:
+        extraVolumes:
+          # - name: aws-earth-nc-files
+          #   flexVolume:
+          #     driver: "azure/blobfuse"
+          #     readOnly: true
+          #     secretRef:
+          #       name: blobfusecreds
+          #     options:
+          #       container: aws-earth-nc-files
+          #       tmppath: /tmp/aws-earth-nc-files
+          #       mountoptions: "--file-cache-timeout-in-seconds=600"
+
+
+        extraVolumeMounts:
+        # - name: aws-earth-nc-files
+        #   mountPath: /data/aws-earth-nc-files
+        #   readOnly: true
+
+        - name: home
+          mountPath: /data/share
+          subPath: 'data-share'
+        - name: home
+          mountPath: /envs
+          subPath: 'envs/auto-build-envs'
+          readOnly: true
+
+    hub:
+      
+      extraVolumes:
+        - name: custom-templates
+          gitRepo:
+            repository: "https://github.com/met-office-lab/jade-custom-jupyterhub-templates.git"
+            revision: "89c2856377f4466087fc4af1fddb5022a5a5f326"
+      extraVolumeMounts:
+        - mountPath: /usr/local/share/jupyterhub/custom_templates
+          name: custom-templates
+          subPath: "jade-custom-jupyterhub-templates/templates"
+        - mountPath: /usr/local/share/jupyterhub/static/custom
+          name: custom-templates
+          subPath: "jade-custom-jupyterhub-templates/assets"
+
+      extraConfig:
+        customPodHook: |
+          c.JupyterHub.template_paths = ['/usr/local/share/jupyterhub/custom_templates/',
+                                        '/usr/local/share/jupyterhub/templates/']
+
+    ingress:
+      hosts:
+      - covid19-response.informaticslab.co.uk
+      tls:
+        - hosts:
+          - covid19-response.informaticslab.co.uk
+          secretName: kubelego-tls-proxy-covid19-response
+
+    auth:
+      github:
+        org_whitelist:
+          - "pangeo-met-office"
+        callbackUrl: "https://covid19-response.informaticslab.co.uk/hub/oauth_callback"
+  

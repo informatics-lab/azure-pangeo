@@ -38,6 +38,10 @@ helm delete panzure-dev.informaticslab.co.uk --purge
 
 Here are some common problems we experience with our Pangeo and ways to resolve them.
 
+### Install error "Error: Could not get apiVersions from Kubernetes: unable to retrieve the complete list of server APIs: metrics.k8s.io/v1beta1: the server is currently unable to handle the request"
+
+This happens when one or more of the Kubernetes API services is not in a "Available" state. This can be checked by running the command `kubectl get apiservice`,  the service  `v1beta1.metrics.k8s.io` regularly fails to be available for up to an hour or perhaps longer when a new AKS cluster is created. Waiting for a hour or two usually resolves the issue if the cluster is new.
+
 
 ### 503 Errors when starting your notebook server
 
