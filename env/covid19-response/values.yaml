@@ -44,8 +44,8 @@ pangeo:
       extraVolumes:
         - name: custom-templates
           gitRepo:
-            repository: "https://github.com/met-office-lab/jade-custom-jupyterhub-templates.git"
-            revision: "89c2856377f4466087fc4af1fddb5022a5a5f326"
+            repository: "https://github.com/informatics-lab/jade-custom-jupyterhub-templates.git"
+            revision: "53e52d41ffce36109da8899b781fc6138f3074fb"
       extraVolumeMounts:
         - mountPath: /usr/local/share/jupyterhub/custom_templates
           name: custom-templates
