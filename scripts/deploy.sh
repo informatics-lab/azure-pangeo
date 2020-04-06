@@ -34,13 +34,10 @@ helm dependency update azure-pangeo
 # Apply changes
 helm upgrade --install $RELEASE_NAME azure-pangeo --namespace $NAMESPACE -f env/$ENV/values.yaml -f env/$ENV/secrets.yaml
 
-# Copy blob storage access secret from default namespace to $ENV namespace
-for SECRET_NAME in blobfusecreds # earthblobfusecreds
-do
-    if kubectl -n $ENV get secret $SECRET_NAME >/dev/null 2>&1  ; then
-        kubectl -n $ENV delete secret $SECRET_NAME
-    fi
-    kubectl get secret $SECRET_NAME -o yaml -n default | grep -v namespace | kubectl --namespace=$ENV apply -f -
-done
 
 echo "*** Deployed successfully ***"
+
+
+echo "###*** Now deploy the blob fuse secret if not previously done ***###"
+SECRET_NAME="blobfusecreds"
+echo "kubectl create secret generic $SECRET_NAME -n $NAMESPACE --from-literal accountname=\"<storage account name>\" --from-literal accountkey=\"<storage account key>\" --type=\"azure/blobfuse\""
