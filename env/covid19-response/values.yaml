@@ -20,7 +20,7 @@ pangeo:
           - name: covid19-response
             flexVolume:
               driver: "azure/blobfuse"
-              readOnly: true
+              readOnly: false
               secretRef:
                 name: blobfusecreds
               options:
@@ -32,7 +32,7 @@ pangeo:
         extraVolumeMounts:
         - name: covid19-response
           mountPath: /data/covid19-response-blob
-          readOnly: true
+          readOnly: false
 
         - name: home
           mountPath: /data/share
