@@ -56,7 +56,7 @@ pangeo:
         - name: custom-templates
           gitRepo:
             repository: "https://github.com/informatics-lab/jade-custom-jupyterhub-templates.git"
-            revision: "53e52d41ffce36109da8899b781fc6138f3074fb"
+            revision: "8de74ed597c82089bb362970db70cdd9c3bed49f"
       extraVolumeMounts:
         - mountPath: /usr/local/share/jupyterhub/custom_templates
           name: custom-templates
