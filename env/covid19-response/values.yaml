@@ -13,6 +13,8 @@ pangeo:
         name: informaticslab/panzure-shared-env-notebook
         tag: 0.0.17
 
+      defaultUrl: "/lab/tree/examples_and_docs/README.md?file-browser-path=/"
+
       extraEnv:
         EXAMPLES_GIT_URL: https://github.com/informatics-lab/covid19-examples-and-docs.git
         # Workaround for https://github.com/ContinuumIO/anaconda-issues/issues/6698
@@ -43,7 +45,7 @@ pangeo:
         - name: home
           mountPath: /data/covid19-ancillary-data
           subPath: 'covid19-response'
-          readonly: true
+          readOnly: true
         - name: home
           mountPath: /envs
           subPath: 'envs/auto-build-envs'
@@ -80,6 +82,6 @@ pangeo:
     auth:
       github:
         org_whitelist:
-          - "pangeo-met-office"
+          - "informatics-lab-covid-19-pangeo"
         callbackUrl: "https://covid19-response.informaticslab.co.uk/hub/oauth_callback"
   
