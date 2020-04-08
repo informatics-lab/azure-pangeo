@@ -11,10 +11,10 @@ pangeo:
     singleuser:
       image:
         name: informaticslab/panzure-shared-env-notebook
-        tag: 0.0.16
+        tag: 0.0.17
 
       extraEnv:
-        EXAMPLES_GIT_URL: https://github.com/informatics-lab/pangeo-workshop.git
+        EXAMPLES_GIT_URL: https://github.com/informatics-lab/covid19-examples-and-docs.git
         # Workaround for https://github.com/ContinuumIO/anaconda-issues/issues/6698
         _PYTHON_SYSCONFIGDATA_NAME: "_sysconfigdata_m_linux_x86_64-linux-gnu"
 
