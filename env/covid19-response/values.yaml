@@ -24,7 +24,6 @@ pangeo:
           - name: covid19-response
             flexVolume:
               driver: "azure/blobfuse"
-              readOnly: false
               secretRef:
                 name: blobfusecreds
               options:
@@ -36,7 +35,7 @@ pangeo:
         extraVolumeMounts:
         - name: covid19-response
           mountPath: /data/covid19-response-blob
-          readOnly: false
+          readOnly: true
 
         - name: home
           mountPath: /data/share
@@ -56,7 +55,7 @@ pangeo:
         - name: custom-templates
           gitRepo:
             repository: "https://github.com/informatics-lab/jade-custom-jupyterhub-templates.git"
-            revision: "8de74ed597c82089bb362970db70cdd9c3bed49f"
+            revision: "5edfe6f8b2a2b6432a59e4ebb574752fefe646b9"
       extraVolumeMounts:
         - mountPath: /usr/local/share/jupyterhub/custom_templates
           name: custom-templates
