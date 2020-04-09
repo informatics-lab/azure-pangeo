@@ -11,7 +11,7 @@ pangeo:
     singleuser:
       image:
         name: informaticslab/panzure-shared-env-notebook
-        tag: 0.0.17
+        tag: 0.0.19
 
       defaultUrl: "/lab/tree/examples_and_docs/README.md?file-browser-path=/"
 
