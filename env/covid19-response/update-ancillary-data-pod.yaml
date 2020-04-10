@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ancillary-data-rw-pod
+spec:
+  containers:
+    - name: ancillary-data-rw-pod
+      image: continuumio/miniconda3
+      command: ["bash", "-c", "sleep 6000"]
+      volumeMounts:
+        - name: home
+          mountPath: /data/covid19-ancillary-data
+          subPath: "covid19-response"
+
+        - name: covid19-response
+          mountPath: /data/covid19-response-blob
+          readOnly: false
+      resources:
+        requests:
+          cpu: 1
+          memory: 3G
+        limits:
+          cpu: 2
+          memory: 6G
+
+  volumes:
+    - name: home
+      persistentVolumeClaim:
+        claimName: pvc-nfs
+    - name: covid19-response
+      flexVolume:
+        driver: "azure/blobfuse"
+        secretRef:
+          name: blobfusecreds
+        options:
+          container: covid19-response
+          tmppath: /tmp/covid19-response
+          mountoptions: "--file-cache-timeout-in-seconds=600"
+
+  restartPolicy: Never
+# kubectl -n covid19-response apply -f <this file>
+
+## If above command fails might have to delete the pod first
+## `kubectl -n covid19-response delete pod ancillary-data-rw-pod`
+## Repeat the apply step.
+
+# kubectl -n covid19-response exec -ti ancillary-data-rw-pod bash
+
+### Then now on the pod
+# wget https://aka.ms/downloadazcopy-v10-linux
+# tar -zxvf downloadazcopy-v10-linux
+# chmod +x azcopy_linux_amd64_10.4.0/azcopy
+# FROM="<SIGNED URL TO CONTAINER>"
+# azcopy_linux_amd64_10.4.0/azcopy sync "$FROM" /covid19-ancillary-data/
+## NOTE: Last time had to run several time as stopped before complete. Did complete eventually.

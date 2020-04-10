@@ -11,9 +11,15 @@ pangeo:
     singleuser:
       image:
         name: informaticslab/panzure-shared-env-notebook
-        tag: 0.0.19
+        tag: 0.0.21
 
-      defaultUrl: "/lab/tree/examples_and_docs/README.md?file-browser-path=/"
+      defaultUrl: "/lab/tree/examples_and_docs/examples/1.0.0%20Welcome.ipynb?file-browser-path=/"
+      cpu:
+        limit: 4
+        guarantee: 2
+      memory:
+        limit: 16G
+        guarantee: 4G
 
       extraEnv:
         EXAMPLES_GIT_URL: https://github.com/informatics-lab/covid19-examples-and-docs.git
@@ -22,22 +28,22 @@ pangeo:
 
 
       storage:
-        extraVolumes:
-          - name: covid19-response
-            flexVolume:
-              driver: "azure/blobfuse"
-              secretRef:
-                name: blobfusecreds
-              options:
-                container: covid19-response
-                tmppath: /tmp/covid19-response
-                mountoptions: "--file-cache-timeout-in-seconds=600"
+        extraVolumes: []
+          # - name: covid19-response
+          #   flexVolume:
+          #     driver: "azure/blobfuse"
+          #     secretRef:
+          #       name: blobfusecreds
+          #     options:
+          #       container: covid19-response
+          #       tmppath: /tmp/covid19-response
+          #       mountoptions: "--file-cache-timeout-in-seconds=600"
 
 
         extraVolumeMounts:
-        - name: covid19-response
-          mountPath: /data/covid19-response-blob
-          readOnly: true
+        # - name: covid19-response
+        #   mountPath: /data/covid19-response-blob
+        #   readOnly: false
 
         - name: home
           mountPath: /data/share
