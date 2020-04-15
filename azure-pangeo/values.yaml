@@ -79,8 +79,8 @@ pangeo:
       extraEnv:
         INTAKE_PATH: "/data/share/intake/catalogs"
         EXAMPLES_GIT_URL: https://github.com/informatics-lab/pangeo-workshop.git
-        # Workaround for https://github.com/ContinuumIO/anaconda-issues/issues/6698
-        _PYTHON_SYSCONFIGDATA_NAME: "_sysconfigdata_m_linux_x86_64-linux-gnu"
+        # # Workaround for https://github.com/ContinuumIO/anaconda-issues/issues/6698
+        # _PYTHON_SYSCONFIGDATA_NAME: "_sysconfigdata_m_linux_x86_64-linux-gnu"
         KRONTAB_OWNER: "$JUPYTERHUB_USER"
 
       fsGid: 0

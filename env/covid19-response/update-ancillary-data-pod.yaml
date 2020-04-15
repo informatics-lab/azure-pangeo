@@ -17,11 +17,11 @@ spec:
           readOnly: false
       resources:
         requests:
-          cpu: 1
-          memory: 3G
-        limits:
           cpu: 2
           memory: 6G
+        limits:
+          cpu: 4
+          memory: 12G
 
   volumes:
     - name: home
@@ -51,5 +51,5 @@ spec:
 # tar -zxvf downloadazcopy-v10-linux
 # chmod +x azcopy_linux_amd64_10.4.0/azcopy
 # FROM="<SIGNED URL TO CONTAINER>"
-# azcopy_linux_amd64_10.4.0/azcopy sync "$FROM" /covid19-ancillary-data/
+# azcopy_linux_amd64_10.4.0/azcopy sync "$FROM" /data/covid19-ancillary-data/
 ## NOTE: Last time had to run several time as stopped before complete. Did complete eventually.

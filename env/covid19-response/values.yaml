@@ -23,8 +23,8 @@ pangeo:
 
       extraEnv:
         EXAMPLES_GIT_URL: https://github.com/informatics-lab/covid19-examples-and-docs.git
-        # Workaround for https://github.com/ContinuumIO/anaconda-issues/issues/6698
-        _PYTHON_SYSCONFIGDATA_NAME: "_sysconfigdata_m_linux_x86_64-linux-gnu"
+        # # Workaround for https://github.com/ContinuumIO/anaconda-issues/issues/6698
+        # _PYTHON_SYSCONFIGDATA_NAME: "_sysconfigdata_m_linux_x86_64-linux-gnu"
 
 
       storage:
