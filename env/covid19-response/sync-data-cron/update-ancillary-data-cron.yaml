@@ -1,0 +1,86 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: ancillary-data-updater
+spec:
+  schedule: "15 4 * * *"
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 10800
+      ttlSecondsAfterFinished: 43200
+      backoffLimit: 4
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: ancillary-data-updater
+              image: continuumio/miniconda3
+              command: ["bash", "-c", "/root/sync-runner.sh"]
+              env:
+                - name: BLOB_STORE_SAS_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: sync-sas
+                      key: SAS.txt
+              volumeMounts:
+                - name: home
+                  mountPath: /data/covid19-ancillary-data
+                  subPath: "covid19-response"
+
+                - name: sync-script
+                  mountPath: /root
+
+                - name: work-volume
+                  mountPath: /work
+
+              resources:
+                requests:
+                  cpu: 2
+                  memory: 6G
+                limits:
+                  cpu: 4
+                  memory: 12G
+
+          volumes:
+            - name: work-volume
+              emptyDir: {}
+
+            - name: sync-script
+              configMap:
+                name: sync-script
+                defaultMode: 0777
+            - name: home
+              persistentVolumeClaim:
+                claimName: pvc-nfs
+
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: sync-script
+data:
+  sync-runner.sh: |-
+    #! /usr/bin/env bash
+    set -ex
+    LOG_DIR=/data/covid19-ancillary-data/.sync-logs
+    mkdir -p $LOG_DIR
+    DEST="$LOG_DIR"/$(date +%d-%m-%yT%H.%M.00).txt
+    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+    $SCRIPT_DIR/sync.sh > $DEST  2>&1
+
+  sync.sh: |-
+    #! /usr/bin/env bash
+    set -ex
+    WKDIR="/work"
+    cd $WKDIR
+    wget https://aka.ms/downloadazcopy-v10-linux
+    tar -zxvf downloadazcopy-v10-linux
+    VERSION=$(ls -d azcopy_linux_amd64_* | head -n1)
+    AZCOPY="$WKDIR"/"$VERSION""/azcopy"
+    chmod +x $AZCOPY
+    DEST=/data/covid19-ancillary-data/synced
+    mkdir -p $DEST
+    export AZCOPY_LOG_LOCATION="$WKDIR"
+    $AZCOPY sync --delete-destination true "$BLOB_STORE_SAS_URL" "$DEST"/
+    # rm /data/covid19-ancillary-data/latest
+    # ln -s "/data/covid19-ancillary-data/$DEST/" /data/covid19-ancillary-data/latest
