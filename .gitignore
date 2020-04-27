@@ -8,3 +8,4 @@ kubernetes/helm-config.yaml
 charts/
 **/secrets.yaml
 tmp*.yaml
+**/SAS.txt

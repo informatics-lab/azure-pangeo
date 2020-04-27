@@ -1,0 +1,125 @@
+## This is a pod that can be useful if you are having issues and need to do some interactive investigation.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: data-rw-pod
+spec:
+  restartPolicy: Never
+  containers:
+    - name: data-rw-pod
+      image: continuumio/miniconda3
+      # '/root/sync-runner.sh'
+      command: ["bash", "-c", "sleep 6000"]
+      env:
+        - name: BLOB_STORE_SAS_URL
+          valueFrom:
+            secretKeyRef:
+              name: sync-sas
+              key: SAS.txt
+      volumeMounts:
+        - name: home
+          mountPath: /data/covid19-ancillary-data
+          subPath: "covid19-response"
+
+        - name: covid19-response
+          mountPath: /data/covid19-response-blob
+          readOnly: false
+
+        - name: sync-script
+          mountPath: /root
+
+        - name: work-volume
+          mountPath: /work
+
+      resources:
+        requests:
+          cpu: 2
+          memory: 6G
+        limits:
+          cpu: 4
+          memory: 12G
+
+  volumes:
+    - name: work-volume
+      emptyDir: {}
+
+    - name: sync-script
+      configMap:
+        name: sync-script
+        defaultMode: 0777
+    - name: home
+      persistentVolumeClaim:
+        claimName: pvc-nfs
+    - name: covid19-response
+      flexVolume:
+        driver: "azure/blobfuse"
+        secretRef:
+          name: blobfusecreds
+        options:
+          container: covid19-response
+          tmppath: /tmp/covid19-response
+          mountoptions: "--file-cache-timeout-in-seconds=600"
+# kubectl -n covid19-response apply -f <this file>
+
+## If above command fails might have to delete the pod first
+## `kubectl -n covid19-response delete pod ancillary-data-rw-pod`
+## Repeat the apply step.
+
+# kubectl -n covid19-response exec -ti ancillary-data-rw-pod bash
+
+### Then now on the pod
+# wget https://aka.ms/downloadazcopy-v10-linux
+# tar -zxvf downloadazcopy-v10-linux
+# chmod +x azcopy_linux_amd64_10.4.0/azcopy
+# DEST=/data/covid19-ancillary-data/$(date +%d-%m-%yT%H.%M.00)
+# mkdir $DEST
+# FROM="<SIGNED URL TO CONTAINER>"
+# azcopy_linux_amd64_10.4.0/azcopy sync "$FROM" "$DEST"/
+# rm /data/covid19-ancillary-data/latest
+# ln -s "/data/covid19-ancillary-data/$DEST/" /data/covid19-ancillary-data/latest
+
+# ---
+# kind: ConfigMap
+# apiVersion: v1
+# metadata:
+#   name: sync-script
+# data:
+#   sync-runner.sh: |-
+#     #! /usr/bin/env bash
+#     set -ex
+#     LOG_DIR=/data/covid19-ancillary-data/.sync-logs
+#     mkdir -p $LOG_DIR
+#     DEST="$LOG_DIR"/$(date +%d-%m-%yT%H.%M.00).txt
+#     SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+#     $SCRIPT_DIR/sync.sh > $DEST  2>&1
+
+#   sync.sh: |-
+#     #! /usr/bin/env bash
+#     set -ex
+#     WKDIR="/work"
+#     cd $WKDIR
+#     wget https://aka.ms/downloadazcopy-v10-linux
+#     tar -zxvf downloadazcopy-v10-linux
+#     VERSION=$(ls -d azcopy_linux_amd64_* | head -n1)
+#     AZCOPY="$WKDIR"/"$VERSION""/azcopy"
+#     chmod +x $AZCOPY
+#     DEST=/data/covid19-ancillary-data/synced
+#     mkdir -p $DEST
+#     export AZCOPY_LOG_LOCATION="$WKDIR"
+#     $AZCOPY sync --delete-destination true "$BLOB_STORE_SAS_URL" "$DEST"/
+#     # rm /data/covid19-ancillary-data/latest
+#     # ln -s "/data/covid19-ancillary-data/$DEST/" /data/covid19-ancillary-data/latest
+
+# # apiVersion: batch/v1beta1
+# kind: CronJob
+# metadata:
+#   name: hello
+# spec:
+#   schedule: "*/1 * * * *"
+#   jobTemplate:
+#     spec:
+#        activeDeadlineSeconds:10800
+#        ttlSecondsAfterFinished: 43200
+#       template:
+
+#       backoffLimit: 4
