@@ -2,11 +2,11 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: ancillary-data-rw-pod
+  name: data-rw-pod
 spec:
   restartPolicy: Never
   containers:
-    - name: ancillary-data-rw-pod
+    - name: data-rw-pod
       image: continuumio/miniconda3
       # '/root/sync-runner.sh'
       command: ["bash", "-c", "sleep 6000"]
