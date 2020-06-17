@@ -22,9 +22,15 @@ spec:
                     secretKeyRef:
                       name: sync-sas
                       key: SAS.txt
+
+                - name: NC_BLOB_STORE_SAS_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: sync-sas
+                      key: NC-SAS.txt
               volumeMounts:
                 - name: home
-                  mountPath: /data/covid19-ancillary-data
+                  mountPath: /data/met-office/
                   subPath: "covid19-response"
 
                 - name: sync-script
@@ -36,10 +42,10 @@ spec:
               resources:
                 requests:
                   cpu: 2
-                  memory: 6G
+                  memory: 10G
                 limits:
                   cpu: 4
-                  memory: 12G
+                  memory: 20G
 
           volumes:
             - name: work-volume
@@ -62,7 +68,7 @@ data:
   sync-runner.sh: |-
     #! /usr/bin/env bash
     set -ex
-    LOG_DIR=/data/covid19-ancillary-data/.sync-logs
+    LOG_DIR=/data/met-office/.sync-logs
     mkdir -p $LOG_DIR
     DEST="$LOG_DIR"/$(date +%d-%m-%yT%H.%M.00).txt
     SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
@@ -78,9 +84,12 @@ data:
     VERSION=$(ls -d azcopy_linux_amd64_* | head -n1)
     AZCOPY="$WKDIR"/"$VERSION""/azcopy"
     chmod +x $AZCOPY
-    DEST=/data/covid19-ancillary-data/synced
+    DEST=/data/met-office/open-license
     mkdir -p $DEST
     export AZCOPY_LOG_LOCATION="$WKDIR"
     $AZCOPY sync --delete-destination true "$BLOB_STORE_SAS_URL" "$DEST"/
-    # rm /data/covid19-ancillary-data/latest
-    # ln -s "/data/covid19-ancillary-data/$DEST/" /data/covid19-ancillary-data/latest
+
+    # non commercial
+    DEST=/data/met-office/non-commercial-license/
+    mkdir -p $DEST
+    $AZCOPY sync --delete-destination true "$NC_BLOB_STORE_SAS_URL" "$DEST"/

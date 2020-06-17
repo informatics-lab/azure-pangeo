@@ -18,7 +18,7 @@ spec:
               key: SAS.txt
       volumeMounts:
         - name: home
-          mountPath: /data/covid19-ancillary-data
+          mountPath: /data/met-office/
           subPath: "covid19-response"
 
         - name: covid19-response
@@ -34,10 +34,10 @@ spec:
       resources:
         requests:
           cpu: 2
-          memory: 6G
+          memory: 10G
         limits:
           cpu: 4
-          memory: 12G
+          memory: 20G
 
   volumes:
     - name: work-volume

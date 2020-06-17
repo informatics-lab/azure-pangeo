@@ -11,7 +11,7 @@ pangeo:
     singleuser:
       image:
         name: informaticslab/panzure-shared-env-notebook
-        tag: 0.0.21
+        tag: 0.0.22
 
       defaultUrl: "/lab/tree/examples_and_docs/examples/1.0.0%20Welcome.ipynb?file-browser-path=/"
       cpu:
@@ -49,7 +49,7 @@ pangeo:
           mountPath: /data/share
           subPath: 'data-share'
         - name: home
-          mountPath: /data/covid19-ancillary-data
+          mountPath: /data/met-office/
           subPath: 'covid19-response'
           readOnly: true
         - name: home
@@ -63,7 +63,7 @@ pangeo:
         - name: custom-templates
           gitRepo:
             repository: "https://github.com/informatics-lab/jade-custom-jupyterhub-templates.git"
-            revision: "e0fe2ffb8672281178410ace052ea57d0c4e3935"
+            revision: "920ac91ef9241aecb3819a31e7b80543a71ece46"
       extraVolumeMounts:
         - mountPath: /usr/local/share/jupyterhub/custom_templates
           name: custom-templates

@@ -9,3 +9,4 @@ charts/
 **/secrets.yaml
 tmp*.yaml
 **/SAS.txt
+**/NC-SAS.txt
