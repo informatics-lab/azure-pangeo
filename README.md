@@ -23,9 +23,9 @@ Now you can go ahead and deploy
 ```shell
 # Create or update
 # prod
-./scripts/deploy.sh panzure panzure panzure --skip-helm-downgrade
+./scripts/deploy.sh --env panzure --release-name panzure --namespace panzure --skip-helm-downgrade
 #dev
-./scripts/deploy.sh panzure-dev panzure-dev panzure-dev --skip-helm-downgrade
+./scripts/deploy.sh --env panzure-dev --release-name panzure-dev --namespace panzure-dev --skip-helm-downgrade
 
 # Delete
 # prod

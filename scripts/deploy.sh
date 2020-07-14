@@ -2,14 +2,100 @@
 set -ex
 echo "*** Deploy ***"
 
-ENV=$1 # environment
-RELEASE_NAME=$2 # helm chart release name.
-NAMESPACE=$3 # kubernetes namespace to use.
-if [[ "$4" == "--skip-helm-downgrade" ]]; then SKIP_HELM_DOWNGRADE="True"; fi
-echo ENV=$1 RELEASE_NAME=$2
+
+## Parse args
+ENV=""
+RELEASE_NAME=""
+NAMESPACE=""
+CLUSTER_NAME=""
+RESOURCE_GROUP=""
+SKIP_HELM_DOWNGRADE="False"
+
+PARAMS=""
+while (( "$#" )); do
+  case "$1" in
+    --skip-helm-downgrade)
+      SKIP_HELM_DOWNGRADE="True"
+      shift
+      ;;
+    -e|--env)
+      if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+        ENV=$2
+        shift 2
+      else
+        echo "Error: Argument for $1 is missing" >&2
+        exit 1
+      fi
+      ;;
+    -n|--namespace)
+      if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+        NAMESPACE=$2
+        shift 2
+      else
+        echo "Error: Argument for $1 is missing" >&2
+        exit 1
+      fi
+      ;;
+    -c|--cluster-name)
+      if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+        CLUSTER_NAME=$2
+        shift 2
+      else
+        echo "Error: Argument for $1 is missing" >&2
+        exit 1
+      fi
+      ;;
+    -r|--release-name)
+      if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+        RELEASE_NAME=$2
+        shift 2
+      else
+        echo "Error: Argument for $1 is missing" >&2
+        exit 1
+      fi
+      ;;
+    -g|--resource-group)
+      if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+        RESOURCE_GROUP=$2
+        shift 2
+      else
+        echo "Error: Argument for $1 is missing" >&2
+        exit 1
+      fi
+      ;;
+    -*|--*=) # unsupported flags
+      echo "Error: Unsupported flag $1" >&2
+      exit 1
+      ;;
+    *) # preserve positional arguments
+      PARAMS="$PARAMS $1"
+      shift
+      ;;
+  esac
+done
+# set positional arguments in their proper place
+eval set -- "$PARAMS"
+
+
+# Backwards compatability with old positional args form
+[ -z "$ENV" ] && ENV=$1 # environment
+[ -z "$RELEASE_NAME" ] && RELEASE_NAME=$2 # helm chart release name.
+[ -z "$NAMESPACE" ] && NAMESPACE=$3 # kubernetes namespace to use.
+[ -z "$CLUSTER_NAME" ] && CLUSTER_NAME=$ENV # default cluster name to release name
+[ -z "$RESOURCE_GROUP" ] && RESOURCE_GROUP=$ENV # default resource group to release name
+
+cat << END 
+Args parsed:
+    ENV=$ENV
+    RELEASE_NAME=$RELEASE_NAME
+    NAMESPACE=$NAMESPACE
+    CLUSTER_NAME=$CLUSTER_NAME
+    RESOURCE_GROUP=$RESOURCE_GROUP
+    SKIP_HELM_DOWNGRADE=$SKIP_HELM_DOWNGRADE
+END
 
 # Connect to the correct cluster
-az aks get-credentials -g "$ENV" -n "$ENV" --overwrite-existing
+az aks get-credentials -g "$RESOURCE_GROUP" -n "$CLUSTER_NAME" --overwrite-existing
 
 # helm client version may differ from server version. Find out the server version and install that if different.
 
