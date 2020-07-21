@@ -3,7 +3,12 @@ redirect:
   enabled: false
 
 pangeo:
+
+
   jupyterhub:
+    cull:
+      enabled: true
+      timeout: 86400 # 24 hours
     ingress:
       hosts:
       - panzure.informaticslab.co.uk
